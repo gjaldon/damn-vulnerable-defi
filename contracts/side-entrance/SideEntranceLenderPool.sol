@@ -41,6 +41,8 @@ contract SideEntranceLenderPool {
 
         IFlashLoanEtherReceiver(msg.sender).execute{value: amount}();
 
+        // @audit `address(this).balance` will be the total ether held by this contract and 
+        // will also count all the ether deposited into this contract by other addresses.
         if (address(this).balance < balanceBefore)
             revert RepayFailed();
     }
