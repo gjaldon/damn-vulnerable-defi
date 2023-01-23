@@ -55,6 +55,9 @@ contract TheRewarderPool {
         }
 
         accountingToken.mint(msg.sender, amount);
+        // @audit we can mint a huge amount of accountingTokens with a flashLoan so that when
+        // a snapshot is recorded in `distributeRewards()`, the snapshot records will reflect we had
+        // a huge amount of accountingTokens deposited.
         distributeRewards();
 
         SafeTransferLib.safeTransferFrom(
@@ -76,6 +79,8 @@ contract TheRewarderPool {
         }
 
         uint256 totalDeposits = accountingToken.totalSupplyAt(lastSnapshotIdForRewards);
+        // @audit the higher the amountDeposited of accountingToken the higher the rewards. we can
+        // manipulate this amount with flashLoanerPool
         uint256 amountDeposited = accountingToken.balanceOfAt(msg.sender, lastSnapshotIdForRewards);
 
         if (amountDeposited > 0 && totalDeposits > 0) {
