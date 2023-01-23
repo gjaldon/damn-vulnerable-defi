@@ -29,6 +29,10 @@ contract TrusterLenderPool is ReentrancyGuard {
         uint256 balanceBefore = token.balanceOf(address(this));
 
         token.transfer(borrower, amount);
+        // @audit can call any function for any contract with this contract as the msg.sender. 
+        // this should call a particular function only like `onFlashLoanReceive` and should check
+        // that the function returns a constant hash value to verify that that callback was implemented
+        // for this contract.
         target.functionCall(data);
 
         if (token.balanceOf(address(this)) < balanceBefore)
