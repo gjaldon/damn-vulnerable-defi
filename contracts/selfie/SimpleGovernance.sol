@@ -46,6 +46,7 @@ contract SimpleGovernance is ISimpleGovernance {
     }
 
     function executeAction(uint256 actionId) external payable returns (bytes memory) {
+        // @audit-issue should have check here for hasEnoughVotes too
         if(!_canBeExecuted(actionId))
             revert CannotExecute(actionId);
 
@@ -104,6 +105,9 @@ contract SimpleGovernance is ISimpleGovernance {
     }
 
     function _hasEnoughVotes(address who) private view returns (bool) {
+        // @audit-issue flash loans can game these governance token snapshots to give
+        // any malicious actor control of governance. should also add duration tokens
+        // are held when computing governance votes.
         uint256 balance = _governanceToken.getBalanceAtLastSnapshot(who);
         uint256 halfTotalSupply = _governanceToken.getTotalSupplyAtLastSnapshot() / 2;
         return balance > halfTotalSupply;
